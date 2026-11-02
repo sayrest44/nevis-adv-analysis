@@ -160,7 +160,7 @@ The advisor and account-size conditions keep those firms wealth-focused. Traditi
 - growth tables group firms by their 2026 segment.
 
 **Q1 – Fastest growing:**
-- **Metric:** AUM CAGR (compound annual growth rate) from the start snapshot to 2026, over 1 year (2025→26), 3 years (2023→26) and 5 years (2021→26). Total growth over the window is also shown.
+- **Metric:** AUM CAGR (compound annual growth rate) from the start snapshot to 2026, over 1 year (2025→26), 3 years (2023→26) and 5 years (2021→26). Total growth over the window is also shown. The growth summary (median, 90th percentile, eligible firms) is reported separately for wealth-focused RIAs and for all RIAs.
 - **Eligible firms:**
   - present in both years;
   - at least \$100M AUM at the start;
@@ -173,7 +173,7 @@ The advisor and account-size conditions keep those firms wealth-focused. Traditi
 - **Metric:** AUM per advisor in 2026.
 - **Eligible firms:** at least 2 advisors and a current filing. The **wealth-focused list also requires at least 20 clients**, so high AUM per advisor reflects a client book rather than a few very large relationships.
 - **Context shown:** clients per advisor alongside, and medians by firm type.
-- **Sensitivity check:** the ranking is recomputed with Item 5B(3) (state-registered investment adviser representatives) as the advisor count. The rank correlation is 0.79–0.95 by segment.
+- **Sensitivity check:** the ranking is recomputed with Item 5B(3) (state-registered investment adviser representatives) as the advisor count. The rank correlation is 0.92–0.96 by segment for wealth-focused firms (5–8 of each top 10 unchanged), and 0.79–0.95 across all RIAs.
 
 **Q3 – Under-staffed:**
 - **Metric:** growth gap = AUM CAGR − advisor CAGR, over the same three windows.
@@ -182,7 +182,7 @@ The advisor and account-size conditions keep those firms wealth-focused. Traditi
   - at least 1 advisor at the end;
   - current filings at both ends.
 - **Under-staffed:** gap > 0 and AUM CAGR > 0.
-- **Material gap:** at least 10 points a year. Markets alone lift AUM ~10% a year while headcount is sticky, so "any gap" covers ~70% of firms.
+- **Material gap:** at least 10 points a year. Markets alone lift AUM ~10% a year while headcount is sticky, so "any gap" covers 68–80% of all RIAs and 78–91% of wealth-focused firms. Shares are reported separately for both universes.
 - **Persistently under-staffed:** a material gap in all three windows.
 
 **Ranking presentation:** each question shows the top 10 wealth-focused firms per segment first, then the top 5 across all RIAs. The CSVs hold the top 10 for both.
@@ -196,7 +196,7 @@ This is the complete list. The notebook's executive summary repeats the most imp
 2. **Timing.** Six September snapshots. AUM is self-reported as of each firm's fiscal year-end (mostly the prior December) and filed annually, mostly in March. Growth therefore includes market returns, not only net new money.
 3. **AUM** means regulatory AUM (Item 5F(2)(c)), as defined by Form ADV.
 4. **AUM totals double-count some assets.** RAUM is reported firm by firm, so assets one adviser manages as a sub-adviser for another are counted by both; at least \$3.3T in 2026 is explicitly reported as wrap sub-advisory. Firm counts and per-firm metrics are unaffected, but market-wide totals and the segments' shares of AUM are somewhat overstated.
-5. **Advisors are a proxy.** Item 5B(1) counts everyone doing investment advisory work, research included, so it overstates client-facing advisors at institutional managers. The 5B(3) sensitivity check keeps segment-level results (rank correlation 0.79–0.95) but changes some individual top-10 names.
+5. **Advisors are a proxy.** Item 5B(1) counts everyone doing investment advisory work, research included, so it overstates client-facing advisors at institutional managers. The 5B(3) sensitivity check keeps the results: rank correlation 0.92–0.96 for wealth-focused firms (0.79–0.95 across all RIAs), though some individual top-10 names change.
 6. **Clients are approximate.**
    - "Fewer than 5" checkboxes are counted as 2.
    - Fund complexes and platforms report millions of underlying investors.
@@ -262,12 +262,12 @@ All files are written by the notebook and committed. Money is in USD; shares and
 | `ria_firms_latest.csv` | 17,149 | The same columns for 2026 only |
 | `segment_summary.csv` | 4 | Per segment: firms, total and median AUM, median advisors, AUM per advisor and clients, counts by firm type, shares of firms and AUM |
 | `q1_fastest_growing.csv` | 240 | Top 10 per segment × window (1y/3y/5y) × universe (wealth-focused / all RIAs) by AUM CAGR |
-| `q1_growth_summary.csv` | 12 | Per segment × window: eligible firms, median and 90th-percentile AUM CAGR |
+| `q1_growth_summary.csv` | 24 | Per universe (wealth-focused / all RIAs) × window × segment: eligible firms, median and 90th-percentile AUM CAGR |
 | `q1_consistent_growers.csv` | 1,542 | All consistent top-quartile growers: 546 wealth-focused, 996 across all RIAs, with their percentile in each window |
 | `q2_capacity_strained.csv` | 80 | Top 10 per segment × universe by AUM per advisor, with clients per advisor |
 | `q2_medians_by_firm_type.csv` | 20 | Median AUM and clients per advisor by segment × firm type |
 | `q3_understaffed.csv` | 240 | Top 10 per segment × window × universe by growth gap |
-| `q3_gap_shares.csv` | 12 | Per segment × window: share of firms with any gap, share and count with a material gap |
+| `q3_gap_shares.csv` | 24 | Per universe (wealth-focused / all RIAs) × window × segment: share of firms with any gap, share and count with a material gap |
 | `q3_persistently_understaffed.csv` | 2,103 | Firms with a material gap in all three windows (filter on `wealth_focused` for the 1,339 wealth-focused ones) |
 | `digital_platforms.csv` | 115 | Firms classified as digital platforms |
 | `investment_managers.csv` | 52 | Firms classified as investment managers used by RIAs, with their wrap sub-adviser share |
