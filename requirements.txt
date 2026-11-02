@@ -1,0 +1,10 @@
+pandas>=3.0
+numpy>=2.0
+openpyxl>=3.1
+matplotlib>=3.10
+ipykernel>=7.0
+nbclient>=0.10
+nbformat>=5.10
+pytest>=8.0
+# Optional, to open the notebook in a browser (needs a Python version with pyyaml wheels):
+# jupyterlab
