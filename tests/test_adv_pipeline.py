@@ -159,19 +159,18 @@ def test_display_name():
     assert ap.display_name("CCM INVESTMENT ADVISERS, LLC") == "CCM Investment Advisers"  # consonant-only acronym
 
 
-def test_family_offices_split_from_wealth_focused():
-    # individual-focused, plans for clients; vary client count and AUM
+def test_few_client_ultra_wealthy_firms_stay_wealth_focused():
+    # Family offices are not split out: a firm with a handful of very large relationships is still wealth-focused
+    # (the Q2 capacity ranking handles it with a 20-client floor instead)
     p = pd.DataFrame({
-        "aum": [1.35e9, 50e6, 1.35e9], "aum_individuals": [1.3e9, 45e6, 1.3e9],
-        "clients_raum": [11, 8, 250], "clients_total": [11, 8, 250], "advisors": [4, 2, 4], "advisors_iar": [4, 2, 4],
-        "offers_planning": [True] * 3, "selects_other_advisers": [False] * 3, "aum_wrap_subadviser": [0.0] * 3,
-        "filing_date": pd.to_datetime(["2026-03-31"] * 3), "year": 2026,
+        "aum": [1.35e9, 1.35e9], "aum_individuals": [1.3e9, 1.3e9],
+        "clients_raum": [11, 250], "clients_total": [11, 250], "advisors": [4, 4], "advisors_iar": [4, 4],
+        "offers_planning": [True] * 2, "selects_other_advisers": [False] * 2, "aum_wrap_subadviser": [0.0] * 2,
+        "filing_date": pd.to_datetime(["2026-03-31"] * 2), "year": 2026,
     })
     m = ap.add_metrics(p)
-    # 1: 11 clients, $1.35B -> family office; 2: 8 clients but only $50M -> stays wealth-focused (small practice);
-    # 3: 250 clients -> wealth-focused
-    assert m["family_office"].tolist() == [True, False, False]
-    assert m["wealth_focused"].tolist() == [False, True, True]
+    assert "family_office" not in m.columns
+    assert m["wealth_focused"].tolist() == [True, True]
 
 
 def test_stale_flag_allows_non_december_fiscal_years():
