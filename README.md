@@ -129,10 +129,9 @@ Every required field and how it is defined. The raw-column detail is in `docs/fi
 - **Meaningful metrics:** capacity measures such as AUM and clients per advisor only signal "strain" in an advice business. A fund manager with \$1B per advisor and two clients is not capacity-strained.
 - **Look-alikes:** some firms look like wealth managers in the data but aren't advisor practices:
   - digital platforms serve clients through technology;
-  - investment managers serve them through other advisers;
-  - family offices serve a handful of very wealthy families.
+  - investment managers used by RIAs serve them through other advisers.
 
-  These are partners, channels, competitors or a different sale rather than buyers of advisor-productivity tools.
+  These are partners, channels or competitors rather than buyers of advisor-productivity tools.
 - **Nothing is discarded:** every ranking also has an all-RIA list, and every firm keeps its type flags, so the scope can be widened (e.g. to hybrid advisors or institutional consultants) by changing one filter.
 
 Every firm gets exactly one type. The rules are applied in this order:
@@ -141,8 +140,7 @@ Every firm gets exactly one type. The rules are applied in this order:
 |---|---|---:|---:|
 | `digital_platform` (excluded) | More than **1,000 clients per advisor**. No human advisor can personally serve 1,000+ clients; the 99th percentile of individual-focused firms is ~775. Examples: Betterment, Acorns, Wealthfront, Human Interest, AssetMark | 115 | \$7.3T |
 | `investment_manager` (excluded) | At least 50% individual AUM, **but** offers no financial planning (Item 5G(1); no planning clients in 5H) **and** does not select other advisers (5G(7)), **and** either (a) at least **25% of AUM** managed as portfolio manager in other firms' wrap programs (5I(2)(b)), or (b) more than **200 clients per advisor** with at least **10 advisors** and at least **\$250K AUM per client**. These are direct-indexing, SMA and model providers used *by* RIAs (Quantinno, Vise AI, Aperio, Breckinridge, Vestmark), which report the end investors in other advisers' programs as their own clients | 52 | \$450B |
-| `family_office` (excluded) | At least 50% individual AUM, **fewer than 20 clients** and at least **\$100M AUM** (the SEC registration threshold). A handful of very wealthy families (median 11 clients, ~\$26M per client), e.g. BT Family Office, Fifth Avenue Family Office. Their AUM per advisor reflects a few very large relationships, not advisor strain | 163 | \$93B |
-| `wealth_focused` (the focus) | At least **50% of AUM** from individuals and high-net-worth individuals (Item 5D(a)+(b)), and not one of the types above | 8,899 | \$23.3T |
+| `wealth_focused` (the focus) | At least **50% of AUM** from individuals and high-net-worth individuals (Item 5D(a)+(b)), and not one of the types above | 9,062 | \$23.4T |
 | `<50% individual AUM` | Everything else: mostly fund, ETF, pension and other institutional managers | 7,920 | \$145.8T |
 
 **Why the investment-manager rule's branch (b) needs all three conditions.** Client load alone (more than 200 per advisor) flagged 164 firms, including real advisory firms:
@@ -151,7 +149,13 @@ Every firm gets exactly one type. The rules are applied in this order:
 
 The advisor and account-size conditions keep those firms wealth-focused. Traditional investment counsel that simply don't offer planning (e.g. Sarofim Trust, Greenhaven) also stay wealth-focused.
 
-**Why the family-office rule needs at least \$100M.** Firms with under 20 clients and less AUM are small practices rather than family offices, so they stay wealth-focused. They are only kept out of the capacity ranking by its 20-client floor ([§4.5](#45-analysis-methods)).
+**Why family offices are not a separate type.** A family-office type (fewer than 20 clients and at least \$100M) was tested and dropped, because family offices can't be identified reliably from Form ADV:
+- **The real ones aren't here.** Single-family offices are exempt from SEC registration (the Family Office Rule), so the "family offices" in this data are multi-family offices and wealth firms. Most are advisor-led wealth managers, which is Nevis's market.
+- **The name is branding.** Many firms called "family office" run ordinary practices with hundreds of clients at \$1–5M each.
+- **A client-count rule is unstable.** Ultra-wealthy boutiques move across any client-count line as they grow. Gleneagles Investment Advisors had 3 clients in 2021 and 51 (at ~\$60M each) in 2026; a16z Perennial had 18 in 2023 and 73 in 2026.
+- **An AUM-per-client rule sweeps in large multi-family offices** (Pathstone, BBR, Tiedemann) with dozens to hundreds of advisors.
+
+The real distortion, AUM per advisor driven by a handful of very large relationships, is handled in the capacity ranking by its 20-client floor ([§4.5](#45-analysis-methods)).
 
 ### 4.5 Analysis methods
 
@@ -208,7 +212,7 @@ This is the complete list. The notebook's executive summary repeats the most imp
 8. **Firm types are rule-based.** They come from self-reported Form ADV answers with judgment-call thresholds ([§4.4](#44-firm-types-and-why-the-rankings-focus-on-wealth-focused-rias)), set where the data shows natural breaks. Known edge cases:
    - Edelman Financial Engines (human planners plus a large 401(k) advice business) is excluded by the 1,000-client platform rule;
    - asset managers that also report planning (e.g. GW&K) stay wealth-focused;
-   - a multi-family office with 20+ clients stays wealth-focused.
+   - family offices are not separated (see [§4.4](#44-firm-types-and-why-the-rankings-focus-on-wealth-focused-rias)): ultra-wealthy boutiques such as Gleneagles stay wealth-focused, and the 20-client floor keeps the few-client extremes out of the capacity ranking.
 
    Schedule D and the Part 2 brochures, which aren't in this data, would refine the rules.
 9. **Eligibility floors** keep tiny bases and a handful of large relationships from producing meaningless ratios: \$100M start AUM for growth, 2 advisors for ratios, and 20 clients for the wealth-focused capacity ranking. They also mean the smallest firms are not ranked.
@@ -242,8 +246,6 @@ Every threshold, its value, and where to change it.
 | `MANAGER_CLIENTS_PER_ADVISOR` | 200 | `adv_pipeline.py` | Investment-manager rule, branch (b) |
 | `MANAGER_MIN_ADVISORS` | 10 | `adv_pipeline.py` | Investment-manager rule, branch (b) |
 | `MANAGER_MIN_AUM_PER_CLIENT` | \$250,000 | `adv_pipeline.py` | Investment-manager rule, branch (b) |
-| `FAMILY_OFFICE_MAX_CLIENTS` | 20 (fewer than) | `adv_pipeline.py` | Family-office rule |
-| `FAMILY_OFFICE_MIN_AUM` | \$100M | `adv_pipeline.py` | Family-office rule |
 | `LATEST` | 2026 | notebook §1 | Latest snapshot |
 | `HORIZONS` | 1, 3, 5 years | notebook §1 | Growth windows |
 | `MIN_START_AUM` | \$100M | notebook §1 | Growth / staffing eligibility |
@@ -258,20 +260,19 @@ All files are written by the notebook and committed. Money is in USD; shares and
 
 | File | Rows | Contents |
 |---|---:|---|
-| `ria_panel.zip` | 94,959 | The full firm-year table, 2021–2026, all 48 columns (a zip holding `ria_panel.csv`; pandas reads it directly) |
+| `ria_panel.zip` | 94,959 | The full firm-year table, 2021–2026, all 47 columns (a zip holding `ria_panel.csv`; pandas reads it directly) |
 | `ria_firms_latest.csv` | 17,149 | The same columns for 2026 only |
 | `segment_summary.csv` | 4 | Per segment: firms, total and median AUM, median advisors, AUM per advisor and clients, counts by firm type, shares of firms and AUM |
 | `q1_fastest_growing.csv` | 240 | Top 10 per segment × window (1y/3y/5y) × universe (wealth-focused / all RIAs) by AUM CAGR |
 | `q1_growth_summary.csv` | 24 | Per universe (wealth-focused / all RIAs) × window × segment: eligible firms, median and 90th-percentile AUM CAGR |
-| `q1_consistent_growers.csv` | 1,542 | All consistent top-quartile growers: 546 wealth-focused, 996 across all RIAs, with their percentile in each window |
+| `q1_consistent_growers.csv` | 1,549 | All consistent top-quartile growers: 553 wealth-focused, 996 across all RIAs, with their percentile in each window |
 | `q2_capacity_strained.csv` | 80 | Top 10 per segment × universe by AUM per advisor, with clients per advisor |
 | `q2_medians_by_firm_type.csv` | 20 | Median AUM and clients per advisor by segment × firm type |
 | `q3_understaffed.csv` | 240 | Top 10 per segment × window × universe by growth gap |
 | `q3_gap_shares.csv` | 24 | Per universe (wealth-focused / all RIAs) × window × segment: share of firms with any gap, share and count with a material gap |
-| `q3_persistently_understaffed.csv` | 2,103 | Firms with a material gap in all three windows (filter on `wealth_focused` for the 1,339 wealth-focused ones) |
+| `q3_persistently_understaffed.csv` | 2,103 | Firms with a material gap in all three windows (filter on `wealth_focused` for the 1,347 wealth-focused ones) |
 | `digital_platforms.csv` | 115 | Firms classified as digital platforms |
 | `investment_managers.csv` | 52 | Firms classified as investment managers used by RIAs, with their wrap sub-adviser share |
-| `family_offices.csv` | 163 | Firms classified as family offices |
 
 **Main columns of the firm table** (`ria_panel.zip`, `ria_firms_latest.csv`). Required fields and definitions are in [§4.2](#42-field-definitions).
 
@@ -280,7 +281,7 @@ All files are written by the notebook and committed. Money is in USD; shares and
 | Identity | `year`, `crd`, `sec_number`, `firm_name`, `legal_name`, `website`, `city`, `state`, `country` |
 | Size and ratios | `aum`, `aum_discretionary`, `aum_nondiscretionary`, `employees`, `advisors`, `advisors_iar` (5B(3)), `aum_per_advisor`, `aum_per_iar`, `clients_raum`, `clients_total`, `aum_per_client`, `aum_per_client_total`, `clients_per_advisor`, `accounts`, `segment` |
 | Client mix | `clients_individuals`, `aum_individuals`, `pct_aum_individuals`, `clients_reported` (before imputation), `n_fewer_than_5_flags`, `clients_nonraum` (5C(1)) |
-| Firm type | `wealth_focused`, `digital_platform`, `investment_manager`, `family_office`, and the inputs `offers_planning`, `selects_other_advisers`, `aum_wrap_subadviser` |
+| Firm type | `wealth_focused`, `digital_platform`, `investment_manager`, and the inputs `offers_planning`, `selects_other_advisers`, `aum_wrap_subadviser` |
 | Quality flags | `filing_date`, `is_stale`, `clients_nonraum_invalid`, `location_source`, `private_residence`, `website_is_social`, `website_from_other_year` |
 | Structure | `sec_status`, `umbrella`, `n_relying_advisers`, `n_acquired_firms` |
 
@@ -323,7 +324,7 @@ This analysis was built with an AI coding agent (Claude Code), working in the re
   - excluding robo-advisers and digital platforms, which I noticed via implausible clients-per-advisor figures;
   - separating investment managers, after spotting Quantinno and Vise among the "wealth" leaders;
   - tightening that rule when it wrongly caught Nest Egg, a real advisory firm;
-  - adding the family-office type and 20-client floor;
+  - adding the 20-client floor to the capacity ranking, and dropping a family-office type once Gleneagles and a16z Perennial showed it couldn't be identified reliably;
   - the focus on wealth-focused firms.
 - **Scope, presentation and when the work was ready.**
 
