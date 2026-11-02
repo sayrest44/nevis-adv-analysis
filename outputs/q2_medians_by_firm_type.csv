@@ -1,0 +1,21 @@
+segment,firm_type,aum_per_advisor,clients_per_advisor
+<$1B,wealth-focused (≥50% individual AUM),70917000.16666667,62.875
+<$1B,<50% individual AUM,59242006.85714286,1.0
+<$1B,family office,93024574.5,3.5
+<$1B,investment manager,38848019.8,51.85
+<$1B,digital platform,6581068.666666667,2728.8888888888887
+$1B-$10B,wealth-focused (≥50% individual AUM),146193521.96428573,65.75
+$1B-$10B,<50% individual AUM,231905263.15789473,1.1428571428571428
+$1B-$10B,family office,402127480.6666666,1.95
+$1B-$10B,investment manager,292605228.91499996,292.60897435897436
+$1B-$10B,digital platform,581063857.6,2372.6
+$10B-$50B,wealth-focused (≥50% individual AUM),146414175.6097561,59.509433962264154
+$10B-$50B,<50% individual AUM,601467784.3026316,1.2992424242424243
+$10B-$50B,family office,12749865911.5,3.0
+$10B-$50B,investment manager,582014856.05,307.70375
+$10B-$50B,digital platform,1988660449.7916667,3265.95
+>$50B,wealth-focused (≥50% individual AUM),122212867.76932515,84.40222443559097
+>$50B,<50% individual AUM,1230140169.41023,1.6666666666666665
+>$50B,family office,,
+>$50B,investment manager,1728696057.7954545,449.9268292682927
+>$50B,digital platform,2433296447.7200704,4447.175319148936
