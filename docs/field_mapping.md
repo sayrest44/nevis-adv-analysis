@@ -68,7 +68,7 @@ Profiled 2026-11-01, reading every row of every file.
 | `selects_other_advisers` | `5G(7)` | `5G(7) = Y` |
 | `aum_wrap_subadviser` | `5I(2)(b)` | Item 5I(2) splits wrap-program AUM into **(a) sponsor, (b) portfolio manager in another firm's program, (c) both**. This order was confirmed against known firms: Vestmark has 100% in (b), AssetMark 100% in (c) |
 | `clients_per_advisor` | `clients_raum / 5B(1)` | Blank when there are no advisors |
-| `digital_platform`, `investment_manager`, `family_office`, `wealth_focused` | derived | Firm types; the rules and rationale are in README §4.4. Tested and rejected as an identifier: Item 5D(j) ("other investment advisers" as clients) is almost never used, because sub-advisers report the end investors instead |
+| `digital_platform`, `investment_manager`, `wealth_focused` | derived | Firm types; the rules and rationale are in README §4.4. Tested and rejected as an identifier: Item 5D(j) ("other investment advisers" as clients) is almost never used, because sub-advisers report the end investors instead |
 | `advisors_iar`, `aum_per_iar` | `5B(3)` | Sensitivity check for the advisor definition |
 | `n_acquired_firms` | `Total Number of Acquired Firms` (2023+) | Part of the `consolidation_flag` for inorganic growth |
 
