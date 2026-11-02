@@ -75,11 +75,6 @@ MANAGER_WRAP_SUBADVISER_SHARE = 0.25
 MANAGER_CLIENTS_PER_ADVISOR = 200
 MANAGER_MIN_ADVISORS = 10
 MANAGER_MIN_AUM_PER_CLIENT = 250_000
-# Family offices: individual-focused firms serving very few clients with large books (median ~$26M per
-# client in 2026), e.g. BT Family Office, Fifth Avenue Family Office. High AUM per advisor there reflects a
-# handful of very wealthy families, not advisor strain, so they get their own type.
-FAMILY_OFFICE_MAX_CLIENTS = 20      # fewer than this many clients...
-FAMILY_OFFICE_MIN_AUM = 100e6       # ...and at least this much AUM (the SEC registration threshold)
 # A filing is stale when the latest ADV predates the snapshot by more than this. The annual amendment is
 # due within 90 days of each firm's fiscal year-end, so a current filer's latest filing is at most
 # 12 + 3 months old. A calendar-year test would wrongly flag firms with non-December fiscal years.
@@ -346,12 +341,10 @@ def add_metrics(panel: pd.DataFrame) -> pd.DataFrame:
         individual_focused & ~p["digital_platform"] & ~p["offers_planning"] & ~p["selects_other_advisers"]
         & (wrap_subadviser | large_book_behind_advisers)
     )
-    p["family_office"] = (
-        individual_focused & ~p["digital_platform"] & ~p["investment_manager"]
-        & (p["clients_raum"] < FAMILY_OFFICE_MAX_CLIENTS) & (p["aum"] >= FAMILY_OFFICE_MIN_AUM)
-    )
-    # bespoke wealth managers: Nevis's core market
-    p["wealth_focused"] = individual_focused & ~p["digital_platform"] & ~p["investment_manager"] & ~p["family_office"]
+    # bespoke wealth managers: Nevis's core market. Family offices are deliberately not split out: single-family
+    # offices are exempt from SEC registration (Family Office Rule), and the registered "family offices" in this
+    # data are multi-family offices and wealth firms that Form ADV cannot reliably tell apart (README §4.4).
+    p["wealth_focused"] = individual_focused & ~p["digital_platform"] & ~p["investment_manager"]
     # stale = latest filing is more than STALE_AFTER_MONTHS older than the snapshot, so the firm missed its
     # annual amendment and the AUM is carried over. The snapshot date is approximated by the latest filing
     # date in that year's file (late August / early September).
@@ -372,8 +365,7 @@ COLUMN_ORDER = [
     "segment", "advisors_iar", "aum_per_iar", "aum_discretionary", "aum_nondiscretionary",
     "accounts", "clients_reported", "n_fewer_than_5_flags", "clients_nonraum",
     "clients_nonraum_invalid", "clients_individuals", "aum_individuals",
-    "pct_aum_individuals", "clients_per_advisor", "digital_platform", "investment_manager", "family_office",
-    "wealth_focused",
+    "pct_aum_individuals", "clients_per_advisor", "digital_platform", "investment_manager", "wealth_focused",
     "offers_planning", "selects_other_advisers", "aum_wrap_subadviser", "is_stale", "sec_status", "umbrella", "n_relying_advisers",
     "n_acquired_firms", "private_residence", "location_source", "website_is_social",
     "website_from_other_year",
