@@ -188,3 +188,18 @@ def test_stale_flag_allows_non_december_fiscal_years():
 def test_segments_are_half_open():
     seg = ap.assign_segment(pd.Series([0, 999_999_999, 1e9, 1e10, 5e10, 6e10]))
     assert seg.tolist() == ["<$1B", "<$1B", "$1B-$10B", "$10B-$50B", ">$50B", ">$50B"]
+
+
+def test_score_leads_counts_signals_and_ranks_capacity_within_segment():
+    f = pd.DataFrame({
+        "crd": [1, 2, 3, 4, 5, 6],
+        "segment": ["<$1B"] * 4 + ["$1B-$10B"] * 2,
+        "aum_per_advisor": [10e6, 20e6, 30e6, 400e6, 100e6, 200e6],
+    })
+    # firm 4 has the highest ratio but too few clients, so it is ineligible for the capacity signal
+    eligible = pd.Series([True, True, True, False, True, True])
+    s = ap.score_leads(f, growth_ids={3, 5}, staffing_ids={3, 4}, capacity_eligible=eligible, pctile=0.5)
+    # cutoffs: <$1B median of 10/20/30M = 20M; $1B-$10B median of 100/200M = 150M
+    assert s["sig_capacity"].tolist() == [False, False, True, False, False, True]
+    assert s["sig_growth"].tolist() == [False, False, True, False, True, False]
+    assert s["n_signals"].tolist() == [0, 0, 3, 1, 1, 1]
