@@ -29,7 +29,7 @@ Take-home analysis for Nevis. It turns six years of SEC data on registered inves
 | If you want to… | Go to |
 |---|---|
 | Read the answers quickly | **`nevis-adv-analysis.ipynb` → Executive summary** (top of the notebook) |
-| See full rankings, charts and commentary | `nevis-adv-analysis.ipynb` → Sections 5–8 |
+| See full rankings, charts and commentary | `nevis-adv-analysis.ipynb` → Sections 5–9 |
 | Understand **how** anything was calculated | This README → [§4 Methodology](#4-methodology) |
 | See **every assumption and limitation** in one list | This README → [§5 Assumptions and limitations](#5-assumptions-and-limitations) |
 | Find a threshold (e.g. the \$100M growth floor) and where it is set | This README → [§6 Parameters](#6-parameters) |
@@ -47,7 +47,7 @@ Take-home analysis for Nevis. It turns six years of SEC data on registered inves
 | Path | Contains | Read it for |
 |---|---|---|
 | `README.md` | Methodology, all assumptions and limitations, parameters, output data dictionary, run instructions, AI usage | The canonical "how and why" |
-| `nevis-adv-analysis.ipynb` | Executed notebook. It opens with an executive summary that answers every question and states the scope and key assumptions. Then: data build and validation (§2), data quality (§3), the firm table (§4), segments (§5), Q1–Q3 (§6–8), with charts and commentary | The answers and the evidence |
+| `nevis-adv-analysis.ipynb` | Executed notebook. It opens with an executive summary that answers every question and states the scope and key assumptions. Then: data build and validation (§2), data quality (§3), the firm table (§4), segments (§5), Q1–Q3 (§6–8), a scored lead list combining them (§9), with charts and commentary | The answers and the evidence |
 | `adv_pipeline.py` | Loading, parsing, cleaning, firm-type classification and growth helpers used by the notebook. All classification thresholds live at the top of this file | The implementation |
 | `tests/test_adv_pipeline.py` | Unit tests on small synthetic inputs (parsers, imputation, location/website fallbacks, firm types, stale-filing rule, growth math) | Verification |
 | `docs/field_mapping.md` | Raw-data reference: the six source files, formats, schema differences between years, and the column-by-column mapping from raw SEC fields to output columns | Data lineage |
@@ -189,6 +189,13 @@ The real distortion, AUM per advisor driven by a handful of very large relations
 - **Material gap:** at least 10 points a year. Markets alone lift AUM ~10% a year while headcount is sticky, so "any gap" covers 68–80% of all RIAs and 78–91% of wealth-focused firms. Shares are reported separately for both universes.
 - **Persistently under-staffed:** a material gap in all three windows.
 
+**Lead list (notebook §9):** combines Q1–Q3 into one score for wealth-focused firms with a current 2026 filing (`adv_pipeline.score_leads`). One point per signal:
+- **Growth:** a consistent top-quartile grower (Q1).
+- **Capacity:** AUM per advisor in the top quartile of the firm's segment, among firms with at least 2 advisors and 20 clients (Q2). Each segment gets its own cutoff because the plateau differs by size.
+- **Staffing:** persistently under-staffed (Q3).
+
+Firms are ordered within each segment by number of signals, then AUM. `check_first` marks firms whose growth may be inorganic (AUM at least doubled in the last year, or `consolidation_flag` in any window). 84 firms hit all three signals and 713 hit two.
+
 **Ranking presentation:** each question shows the top 10 wealth-focused firms per segment first, then the top 5 across all RIAs. The CSVs hold the top 10 for both.
 
 ## 5. Assumptions and limitations
@@ -252,6 +259,7 @@ Every threshold, its value, and where to change it.
 | `MIN_ADVISORS` | 2 | notebook §1 | AUM-per-advisor and staffing eligibility |
 | `MIN_CLIENTS` | 20 | notebook §1 | Wealth-focused capacity ranking (Q2) |
 | `MATERIAL_GAP` | 10 points/yr | notebook §1 | Material under-staffing |
+| `CAPACITY_SIGNAL_PCTILE` | 75th percentile | `adv_pipeline.py` | Capacity signal in the lead list |
 | `TOP_N` | 10 | notebook §1 | Firms shown per segment |
 
 ## 7. Outputs: data dictionary
@@ -273,6 +281,7 @@ All files are written by the notebook and committed. Money is in USD; shares and
 | `q3_persistently_understaffed.csv` | 2,103 | Firms with a material gap in all three windows (filter on `wealth_focused` for the 1,347 wealth-focused ones) |
 | `digital_platforms.csv` | 115 | Firms classified as digital platforms |
 | `investment_managers.csv` | 52 | Firms classified as investment managers used by RIAs, with their wrap sub-adviser share |
+| `priority_targets.csv` | 797 | Wealth-focused firms with 2+ lead signals: `priority_rank` within segment, `n_signals`, the three signal flags, `check_first`, `capacity_cutoff`, contact fields, 5-year AUM CAGR and gap, 1-year AUM growth |
 
 **Main columns of the firm table** (`ria_panel.zip`, `ria_firms_latest.csv`). Required fields and definitions are in [§4.2](#42-field-definitions).
 
