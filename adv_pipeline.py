@@ -467,6 +467,31 @@ def growth_table(panel: pd.DataFrame, end_year: int, horizon: int) -> pd.DataFra
     return m.replace([np.inf, -np.inf], np.nan)
 
 
+LEAD_SIGNALS = ["sig_growth", "sig_capacity", "sig_staffing"]
+# Firms in the top quartile of AUM per advisor within their segment count as above the capacity plateau.
+CAPACITY_SIGNAL_PCTILE = 0.75
+
+
+def score_leads(firms: pd.DataFrame, growth_ids, staffing_ids, capacity_eligible: pd.Series,
+                pctile: float = CAPACITY_SIGNAL_PCTILE) -> pd.DataFrame:
+    """Count the three lead signals per firm (one row per firm, latest year).
+
+    - sig_growth:   CRD in growth_ids (consistent top-quartile growth, Q1)
+    - sig_capacity: AUM per advisor in the top (1 - pctile) of the firm's segment, ranked among
+                    rows where capacity_eligible is True (Q2); ineligible firms never get the signal
+    - sig_staffing: CRD in staffing_ids (material staffing gap in every window, Q3)
+    """
+    out = firms.copy()
+    eligible = capacity_eligible.reindex(out.index, fill_value=False).astype(bool)
+    cutoff = out[eligible].groupby("segment", observed=True)["aum_per_advisor"].quantile(pctile)
+    out["capacity_cutoff"] = out["segment"].map(cutoff).astype(float)
+    out["sig_growth"] = out["crd"].isin(set(growth_ids))
+    out["sig_capacity"] = eligible & (out["aum_per_advisor"] > out["capacity_cutoff"])
+    out["sig_staffing"] = out["crd"].isin(set(staffing_ids))
+    out["n_signals"] = out[LEAD_SIGNALS].sum(axis=1).astype(int)
+    return out
+
+
 def top_n_by_segment(df: pd.DataFrame, sort_col: str, n: int = 10,
                      columns: list[str] | None = None) -> pd.DataFrame:
     """Top n rows per segment by sort_col (descending), segments in size order."""
